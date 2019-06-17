@@ -142,7 +142,7 @@ for name, estimator in models():
     print(classification_report(y_train, y_pred))
     train_accuracy_ = accuracy_score(y_train, y_pred)
 
-    print('Predicting omn test data : ')
+    print('Predicting on test data : ')
     y_pred = estimator.predict(X_test)
     print(confusion_matrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
