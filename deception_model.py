@@ -82,14 +82,14 @@ def modelling(reviews_df, target):
         estimator.fit(X_train, y_train)
         print('{} Predicting on train data : '.format(name))
         y_pred = estimator.predict(X_train)
-        # print(confusion_matrix(y_train, y_pred))
-        # print(classification_report(y_train, y_pred))
+        print(confusion_matrix(y_train, y_pred))
+        print(classification_report(y_train, y_pred))
         train_accuracy_ = accuracy_score(y_train, y_pred) * 100
 
         print('{} Predicting omn test data : '.format(name))
         y_pred = estimator.predict(X_test)
-        # print(confusion_matrix(y_test, y_pred))
-        # print(classification_report(y_test, y_pred))
+        print(confusion_matrix(y_test, y_pred))
+        print(classification_report(y_test, y_pred))
         test_accuracy_ = accuracy_score(y_test, y_pred) * 100
         model_accuracy.append('{} Accuracy Score Training : {} Testing = {} '.format(name, train_accuracy_, test_accuracy_))
 
