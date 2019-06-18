@@ -2,7 +2,7 @@
 
 # ============================================================================================<br />
 # Deceptive Modeling
-# Without stop words 
+# With stop words 
 
 Logistics Regression Accuracy Score Training : 87.20833333333333 Testing = 82.625 <br />
 SGD Classifier Accuracy Score Training : 99.75 Testing = 95.25 <br />
@@ -15,7 +15,7 @@ Ada Boost Accuracy Score Training : 92.70833333333334 Testing = 85.625 <br />
 Bagging Classifier Accuracy Score Training : 99.75 Testing = 91.25 <br />
 Extra Tress Classifier Accuracy Score Training : 100.0 Testing = 94.25 <br />
 
-# With stop words
+# Without stop words
 Logistics Regression Accuracy Score Training : 89.0 Testing = 84.0 <br />
 SGD Classifier Accuracy Score Training : 99.95833333333334 Testing = 95.625 <br />
 SVC Linear Accuracy Score Training : 96.625 Testing = 92.125 <br />
