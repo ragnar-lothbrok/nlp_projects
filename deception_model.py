@@ -1,4 +1,4 @@
-# https://myleott.com/op-spam.html
+# dataset https://myleott.com/op-spam.html
 import pandas as pd
 import os
 import numpy as np
@@ -21,30 +21,17 @@ for r, d, f in os.walk(dir):
                 allreviews.append(open(path).read())
                 target.append('t')
 
-reviews_df = pd.DataFrame(allreviews)
+def preprocessing(reviews_df, exclude_stop_words):
 
-
-all_words = []
-all_posTags = []
-def postags() :
-    for postive in allreviews:
-        postive = postive.lower()
-        tokens = word_tokenize(postive)
-        tokens = [w for w in tokens if w.isalnum()]
-        tokens = [w for w in tokens if w not in stop_words]
-        all_words.append(tokens)
-        posTags = nltk.pos_tag(tokens)
-        return posTags
-
-
-def preprocessing(reviews_df):
-    # remove stop words
     # lower case
     formattedDf = reviews_df[0].str.lower()
-    from nltk.corpus import stopwords
-    stop_words = set(stopwords.words('english'))
-    formattedDf = formattedDf.apply(lambda x: ' '.join(
-        word for word in x.split() if word not in stop_words))
+
+    # remove stop words
+    if exclude_stop_words == 'true':
+        from nltk.corpus import stopwords
+        stop_words = set(stopwords.words('english'))
+        formattedDf = formattedDf.apply(lambda x: ' '.join(
+            word for word in x.split() if word not in stop_words))
 
     # Remove punctuation
     formattedDf = formattedDf.str.replace(r'[^\w\d\s]', ' ')
@@ -66,45 +53,53 @@ def preprocessing(reviews_df):
     print('formatted reviews data = {} '.format(formattedDf.head(10)))
     return formattedDf
 
-reviews_df = preprocessing(reviews_df)
+def modelling(reviews_df, target):
+    from sklearn.preprocessing import LabelEncoder
+    # convert class labels to binary values, 0 = ham and 1 = spam
+    encoder = LabelEncoder()
+    df = pd.DataFrame(target)
+    Y = encoder.fit_transform(df[0])
+    print('Classes Count : ')
+    print(df[0].value_counts())
 
-from sklearn.preprocessing import LabelEncoder
-# convert class labels to binary values, 0 = ham and 1 = spam
-encoder = LabelEncoder()
-df = pd.DataFrame(target)
-Y = encoder.fit_transform(df[0])
-print('Classes Count : ')
-print(df[0].value_counts())
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    tfidfVectorizer = TfidfVectorizer(ngram_range=(1,1) , max_features=5000)
+    vectorizer = tfidfVectorizer.fit_transform(reviews_df)
+    dense = vectorizer.todense()
+    df = pd.DataFrame(dense)
+    df = pd.DataFrame(vectorizer.toarray(), columns = tfidfVectorizer.get_feature_names())
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-tfidfVectorizer = TfidfVectorizer(ngram_range=(1,1) , max_features=5000)
-vectorizer = tfidfVectorizer.fit_transform(reviews_df)
-dense = vectorizer.todense()
-df = pd.DataFrame(dense)
-df = pd.DataFrame(vectorizer.toarray(), columns = tfidfVectorizer.get_feature_names())
+    #tfidf vectorizer
+    from nltk import  word_tokenize
+    seed = 1
+    np.random.seed = seed
+    from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+    from ensemble_method import models
+    model_accuracy = []
+    from sklearn.model_selection import train_test_split
+    X_train, X_test, y_train, y_test = train_test_split(df, Y, test_size=0.25, random_state=seed)
+    for name, estimator in models():
+        estimator.fit(X_train, y_train)
+        print('{} Predicting on train data : '.format(name))
+        y_pred = estimator.predict(X_train)
+        # print(confusion_matrix(y_train, y_pred))
+        # print(classification_report(y_train, y_pred))
+        train_accuracy_ = accuracy_score(y_train, y_pred) * 100
 
-#tfidf vectorizer
-from nltk import  word_tokenize
-seed = 1
-np.random.seed = seed
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from ensemble_method import models
-model_accuracy = []
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(df, Y, test_size=0.25, random_state=seed)
-for name, estimator in models():
-    estimator.fit(X_train, y_train)
-    print('{} Predicting on train data : '.format(name))
-    y_pred = estimator.predict(X_train)
-    print(confusion_matrix(y_train, y_pred))
-    print(classification_report(y_train, y_pred))
-    train_accuracy_ = accuracy_score(y_train, y_pred) * 100
+        print('{} Predicting omn test data : '.format(name))
+        y_pred = estimator.predict(X_test)
+        # print(confusion_matrix(y_test, y_pred))
+        # print(classification_report(y_test, y_pred))
+        test_accuracy_ = accuracy_score(y_test, y_pred) * 100
+        model_accuracy.append('{} Accuracy Score Training : {} Testing = {} '.format(name, train_accuracy_, test_accuracy_))
 
-    print('{} Predicting omn test data : '.format(name))
-    y_pred = estimator.predict(X_test)
-    print(confusion_matrix(y_test, y_pred))
-    print(classification_report(y_test, y_pred))
-    test_accuracy_ = accuracy_score(y_test, y_pred) * 100
-    model_accuracy.append('{} Accuracy Score Training : {} Testing = {} '.format(name, train_accuracy_, test_accuracy_))
+    print('\n'.join(map(str, model_accuracy)))
 
-print('\n'.join(map(str, model_accuracy)))
+with_stopwords = preprocessing(pd.DataFrame(allreviews), 'false')
+without_stopwords = preprocessing(pd.DataFrame(allreviews), 'true')
+
+print('without Stop words :')
+modelling(without_stopwords, target)
+
+print('with Stop words :')
+modelling(with_stopwords, target)
