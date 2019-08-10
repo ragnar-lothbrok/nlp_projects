@@ -11,12 +11,13 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from nltk.classify.scikitlearn import SklearnClassifier
 from nltk.classify import accuracy
 from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import RandomForestRegressor
 import pandas as pd
 
 
 def models():
     names = ['Logistics Regression', 'SGD Classifier', 'SVC Linear', 'Naive Bayes', 'Decision Tree', 'KNeighbors'
-        , 'Random Forest', 'Ada Boost', 'Bagging Classifier', 'Extra Tress Classifier']
+        , 'Random Forest', 'Ada Boost', 'Bagging Classifier', 'Extra Tress Classifier', 'RandomForest Regressor']
 
 
     classfiers = [
@@ -29,7 +30,8 @@ def models():
         RandomForestClassifier(n_estimators=31, random_state=111),
         AdaBoostClassifier(n_estimators=62, random_state=111),
         BaggingClassifier(n_estimators=9, random_state=111),
-        ExtraTreesClassifier(n_estimators=9, random_state=111)
+        ExtraTreesClassifier(n_estimators=9, random_state=111),
+        RandomForestRegressor(max_depth=5, random_state=0, n_estimators = 100)
     ]
 
     models = zip(names, classfiers)
